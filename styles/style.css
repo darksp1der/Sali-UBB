@@ -3,6 +3,10 @@ body {
   margin: 0;
   background-color: #f4f4f9;
   font-family: Arial, sans-serif;
+  height: 100vh; /* Ensure full height of the viewport */
+  display: flex; /* Flexbox for centering */
+  justify-content: center; /* Horizontal centering */
+  align-items: center; /* Vertical centering */
 }
 
 /* 
