@@ -3,43 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login to UBB Reservation</title>
+  <title>UBB Room Reservation</title>
   <link rel="stylesheet" href="styles/style.css" />
 </head>
 <body>
-  <div id="login-container" class="container">
+  <div id="login-container" class="container" style="display: none;">
     <h1>Login to UBB Reservation</h1>
     <form id="login-form">
       <label for="email">Email UBB:</label>
-      <input type="email" id="email" placeholder="nume@ubbcluj.ro" required />
+      <input type="email" id="email" required />
 
       <label for="password">Password:</label>
       <input type="password" id="password" required />
 
       <button type="submit">Sign In</button>
     </form>
-    <p class="signup-link">
-      Don't have an account? <a href="#" id="create-account-link">Create one</a>
-    </p>
-  </div>
-
-  <div id="signup-container" class="container" style="display: none;">
-    <h1>Create UBB Account</h1>
-    <form id="signup-form">
-      <label for="signup-email">Email UBB:</label>
-      <input type="email" id="signup-email" placeholder="nume@ubbcluj.ro" required />
-
-      <label for="signup-password">Password:</label>
-      <input type="password" id="signup-password" required />
-
-      <label for="signup-confirm-password">Confirm Password:</label>
-      <input type="password" id="signup-confirm-password" required />
-
-      <button type="submit">Create Account</button>
-    </form>
-    <p class="login-link">
-      Already have an account? <a href="#" id="login-link">Sign in</a>
-    </p>
   </div>
 
   <div id="planner-container" class="container" style="display: none;">
@@ -58,12 +36,13 @@
 
       <button type="submit">Add Reservation</button>
     </form>
-    
+
     <div id="reservations-list">
       <h2>Your Reservations</h2>
       <ul id="reservation-items"></ul>
     </div>
+    <button id="logout-button">Log Out</button>
   </div>
-  <script src="scripts/script.js"></script>
+  <script src="scripts/index-script.js"></script>
 </body>
 </html>
