@@ -1,69 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login to UBB Reservation</title>
   <link rel="stylesheet" href="styles/style.css" />
 </head>
+
 <body>
-  <div id="login-container" class="container">
-    <h1>Login to UBB Reservation</h1>
-    <form id="login-form">
-      <label for="email">Email UBB:</label>
-      <input type="email" id="email" placeholder="nume@ubbcluj.ro" required />
+  <!-- Main container to center everything vertically & horizontally -->
+  <div class="main-container">
+    <!-- Logo container -->
+    <div class="logo-container">
+      <!-- Replace "images/ubb-logo.png" with the correct path to your logo -->
+      <img src="images/ubb-logo.png" alt="UBB Logo" id="ubb-logo">
+    </div>
 
-      <label for="password">Password:</label>
-      <input type="password" id="password" required />
+    <!-- Login Box -->
+    <div id="login-container" class="container">
+      <h1>Login to UBB Reservation</h1>
+      <form id="login-form">
+        <label for="email">Email UBB:</label>
+        <input type="email" id="email" placeholder="nume@ubbcluj.ro" required />
 
-      <button type="submit">Sign In</button>
-    </form>
-    <p class="signup-link">
-      Don't have an account? <a href="#" id="create-account-link">Create one</a>
-    </p>
-  </div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" required />
 
-  <div id="signup-container" class="container" style="display: none;">
-    <h1>Create UBB Account</h1>
-    <form id="signup-form">
-      <label for="signup-email">Email UBB:</label>
-      <input type="email" id="signup-email" placeholder="nume@ubbcluj.ro" required />
+        <button type="submit">Sign In</button>
+      </form>
+      <p class="signup-link">
+        Don't have an account? <a href="#" id="create-account-link">Create one</a>
+      </p>
+    </div>
 
-      <label for="signup-password">Password:</label>
-      <input type="password" id="signup-password" required />
+    <!-- Signup Box -->
+    <div id="signup-container" class="container" style="display: none;">
+      <h1>Create UBB Account</h1>
+      <form id="signup-form">
+        <label for="signup-email">Email UBB:</label>
+        <input type="email" id="signup-email" placeholder="nume@ubbcluj.ro" required />
 
-      <label for="signup-confirm-password">Confirm Password:</label>
-      <input type="password" id="signup-confirm-password" required />
+        <label for="signup-password">Password:</label>
+        <input type="password" id="signup-password" required />
 
-      <button type="submit">Create Account</button>
-    </form>
-    <p class="login-link">
-      Already have an account? <a href="#" id="login-link">Sign in</a>
-    </p>
-  </div>
+        <label for="signup-confirm-password">Confirm Password:</label>
+        <input type="password" id="signup-confirm-password" required />
 
-  <div id="planner-container" class="container" style="display: none;">
-    <h1>UBB Room Reservation</h1>
-    <form id="reservation-form">
-      <label for="room-select">Select Room:</label>
-      <select id="room-select" required>
-        <option value="">Choose a Room</option>
-      </select>
+        <button type="submit">Create Account</button>
+      </form>
+      <p class="login-link">
+        Already have an account? <a href="#" id="login-link">Sign in</a>
+      </p>
+    </div>
 
-      <label for="start-time">Start Time:</label>
-      <input type="time" id="start-time" required />
+    <!-- Planner/Reservation Box -->
+    <div id="planner-container" class="container" style="display: none;">
+      <h1>UBB Room Reservation</h1>
+      <form id="reservation-form">
+        <label for="room-select">Select Room:</label>
+        <select id="room-select" required>
+          <option value="">Choose a Room</option>
+        </select>
 
-      <label for="end-time">End Time:</label>
-      <input type="time" id="end-time" required />
+        <label for="reservation-date">Reservation Date:</label>
+        <input type="date" id="reservation-date" required />
 
-      <button type="submit">Add Reservation</button>
-    </form>
-    
-    <div id="reservations-list">
-      <h2>Your Reservations</h2>
-      <ul id="reservation-items"></ul>
+        <label for="start-time">Start Time:</label>
+        <select id="start-time" required>
+          <option value="">Select Start Time</option>
+        </select>
+
+        <label for="end-time">End Time:</label>
+        <select id="end-time" required>
+          <option value="">Select End Time</option>
+        </select>
+
+        <button type="submit">Add Reservation</button>
+
+
+      </form>
+
+      <div id="reservations-list">
+        <h2>Your Reservations</h2>
+        <ul id="reservation-items"></ul>
+      </div>
     </div>
   </div>
-  <script src="scripts/script.js"></script>
+
+  <script type="module" src="scripts/script.js"></script>
 </body>
+
 </html>
