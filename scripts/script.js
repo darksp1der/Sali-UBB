@@ -4,15 +4,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const plannerContainer = document.getElementById("planner-container");
   const loginForm = document.getElementById("login-form");
   const signupForm = document.getElementById("signup-form");
+  const reservationForm = document.getElementById("reservation-form");
   const createAccountLink = document.getElementById("create-account-link");
   const loginLink = document.getElementById("login-link");
-  const reservationForm = document.getElementById("reservation-form");
   const roomSelect = document.getElementById("room-select");
   const startTimeInput = document.getElementById("start-time");
   const endTimeInput = document.getElementById("end-time");
   const reservationsList = document.getElementById("reservation-items");
 
-  // Define the rooms array
+  // Define room options
   const rooms = [
     "A300", "A301", "A302", "A303", "A304",
     "A305", "A306", "A307", "A308", "A309",
@@ -21,51 +21,23 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   // Populate the room dropdown
-  rooms.forEach(room => {
+  rooms.forEach((room) => {
     const option = document.createElement("option");
     option.value = room;
     option.textContent = room;
     roomSelect.appendChild(option);
   });
 
-  // Validate UBB email
+  // Function to validate UBB email addresses
   function validateUBBEmail(email) {
-    const validDomains = ['@ubbcluj.ro', '@stud.ubbcluj.ro'];
-    return validDomains.some(domain => email.toLowerCase().endsWith(domain));
+    const validDomains = ["@ubbcluj.ro", "@stud.ubbcluj.ro"];
+    return validDomains.some((domain) => email.toLowerCase().endsWith(domain));
   }
 
-  createAccountLink.addEventListener("click", (e) => {
+  // Signup form submission
+  signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    loginContainer.style.display = "none";
-    signupContainer.style.display = "block";
-  });
 
-  loginLink.addEventListener("click", (e) => {
-    e.preventDefault();
-    signupContainer.style.display = "none";
-    loginContainer.style.display = "block";
-  });
-
-  loginForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    if (!validateUBBEmail(email)) {
-      alert("Please use a valid UBB email address (@ubbcluj.ro or @stud.ubbcluj.ro)");
-      return;
-    }
-
-    // Here you would typically authenticate with a server
-    console.log("Login attempted with:", { email, password });
-
-    loginContainer.style.display = "none";
-    plannerContainer.style.display = "block";
-    displayReservations(); // Show reservations after login
-  });
-
-  signupForm.addEventListener("submit", (e) => {
-    e.preventDefault();
     const email = document.getElementById("signup-email").value;
     const password = document.getElementById("signup-password").value;
     const confirmPassword = document.getElementById("signup-confirm-password").value;
@@ -80,22 +52,75 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Here you would typically create account on server
-    console.log("Account creation attempted with:", { email, password });
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    signupContainer.style.display = "none";
-    plannerContainer.style.display = "block";
-    displayReservations(); // Show reservations after signup
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.message);
+        signupContainer.style.display = "none";
+        loginContainer.style.display = "block";
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error("Signup error:", err);
+      alert("An error occurred during signup.");
+    }
   });
 
-  roomSelect.addEventListener("change", displayReservations);
+  // Login form submission
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  reservationForm.addEventListener("submit", (e) => {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    if (!validateUBBEmail(email)) {
+      alert("Please use a valid UBB email address (@ubbcluj.ro or @stud.ubbcluj.ro)");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.message);
+        localStorage.setItem("userId", data.userId); // Store user ID for authenticated actions
+        loginContainer.style.display = "none";
+        plannerContainer.style.display = "block";
+        displayReservations(); // Load reservations after login
+      } else {
+        alert("Login failed. Please check your credentials.");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("An error occurred during login.");
+    }
+  });
+
+  // Reservation form submission
+  reservationForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const selectedRoom = roomSelect.value;
     const startTime = startTimeInput.value;
     const endTime = endTimeInput.value;
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      alert("You must be logged in to make a reservation.");
+      return;
+    }
 
     if (!selectedRoom) {
       alert("Please select a room.");
@@ -107,67 +132,99 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    let reservations = JSON.parse(localStorage.getItem(`reservations_${selectedRoom}`)) || [];
+    try {
+      const response = await fetch("http://localhost:5000/api/reservations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ room: selectedRoom, startTime, endTime, userId }),
+      });
 
-    if (reservations.some((reservation) =>
-      !(new Date(`1970-01-01T${endTime}`) <= new Date(`1970-01-01T${reservation.start}`) ||
-        new Date(`1970-01-01T${startTime}`) >= new Date(`1970-01-01T${reservation.end}`))
-    )) {
-      alert("This reservation conflicts with an existing reservation.");
-      return;
+      const data = await response.json();
+      if (response.ok) {
+        alert("Reservation added successfully!");
+        displayReservations(); // Reload reservations
+        startTimeInput.value = "";
+        endTimeInput.value = "";
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error("Reservation error:", err);
+      alert("An error occurred while adding the reservation.");
     }
-
-    const newReservation = { start: startTime, end: endTime };
-    reservations.push(newReservation);
-    reservations.sort((a, b) => new Date(`1970-01-01T${a.start}`) - new Date(`1970-01-01T${b.start}`));
-
-    localStorage.setItem(`reservations_${selectedRoom}`, JSON.stringify(reservations));
-    displayReservations();
-
-    startTimeInput.value = "";
-    endTimeInput.value = "";
   });
 
-  function displayReservations() {
+  async function displayReservations() {
+    const userId = localStorage.getItem("userId");
     const selectedRoom = roomSelect.value;
     reservationsList.innerHTML = "";
+
+    if (!userId) {
+      alert("You must be logged in to view reservations.");
+      return;
+    }
 
     if (!selectedRoom) {
       reservationsList.innerHTML = "<p>Please select a room to view reservations.</p>";
       return;
     }
 
-    const reservations = JSON.parse(localStorage.getItem(`reservations_${selectedRoom}`)) || [];
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/reservations?room=${selectedRoom}&userId=${userId}`
+      );
 
-    if (reservations.length === 0) {
-      reservationsList.innerHTML = "<p>No reservations for this room.</p>";
+      const reservations = await response.json();
+
+      if (reservations.length === 0) {
+        reservationsList.innerHTML = "<p>No reservations for this room.</p>";
+        return;
+      }
+
+      reservations.forEach((reservation, index) => {
+        const listItem = document.createElement("li");
+        listItem.className = "reservation-item";
+        listItem.innerHTML = `
+          ${reservation.startTime} - ${reservation.endTime}
+          <button class="delete-btn" data-id="${reservation._id}">X</button>
+        `;
+        reservationsList.appendChild(listItem);
+      });
+
+      document.querySelectorAll(".delete-btn").forEach((btn) =>
+        btn.addEventListener("click", deleteReservation)
+      );
+    } catch (err) {
+      console.error("Fetch reservations error:", err);
+      reservationsList.innerHTML = "<p>Error loading reservations.</p>";
+    }
+  }
+
+  async function deleteReservation(e) {
+    const userId = localStorage.getItem("userId");
+    const reservationId = e.target.getAttribute("data-id");
+
+    if (!userId) {
+      alert("You must be logged in to delete a reservation.");
       return;
     }
 
-    reservations.forEach((reservation, index) => {
-      const listItem = document.createElement("li");
-      listItem.className = "reservation-item";
-      listItem.innerHTML = `
-        ${reservation.start} - ${reservation.end}
-        <button class="delete-btn" data-index="${index}" data-room="${selectedRoom}">X</button>
-      `;
-      reservationsList.appendChild(listItem);
-    });
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/reservations/${reservationId}`,
+        { method: "DELETE" }
+      );
 
-    document.querySelectorAll(".delete-btn").forEach((btn) =>
-      btn.addEventListener("click", deleteReservation)
-    );
-  }
-
-  function deleteReservation(e) {
-    const selectedRoom = e.target.getAttribute("data-room");
-    const index = parseInt(e.target.getAttribute("data-index"), 10);
-
-    let reservations = JSON.parse(localStorage.getItem(`reservations_${selectedRoom}`)) || [];
-    reservations.splice(index, 1);
-
-    localStorage.setItem(`reservations_${selectedRoom}`, JSON.stringify(reservations));
-    displayReservations();
+      if (response.ok) {
+        alert("Reservation deleted successfully.");
+        displayReservations();
+      } else {
+        alert("Failed to delete reservation.");
+      }
+    } catch (err) {
+      console.error("Delete reservation error:", err);
+      alert("An error occurred while deleting the reservation.");
+    }
   }
 
   // Display reservations when the page loads

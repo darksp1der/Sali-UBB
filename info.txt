@@ -1,0 +1,5 @@
+ca sa ii dam run la backend din terminal deschizi terminal in proiect 
+->  cd backend 
+(doar prima data)
+->  node server.js
+apoi ruleaza serverul pe http://localhost:5000/
