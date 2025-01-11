@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const endTimeInput = document.getElementById("end-time");
   const reservationsList = document.getElementById("reservation-items");
 
-  // Define the rooms array
   const rooms = [
     "A300", "A301", "A302", "A303", "A304",
     "A305", "A306", "A307", "A308", "A309",
@@ -21,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   // Populate the room dropdown
-  rooms.forEach(room => {
+  rooms.forEach((room) => {
     const option = document.createElement("option");
     option.value = room;
     option.textContent = room;
@@ -30,8 +29,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Validate UBB email
   function validateUBBEmail(email) {
-    const validDomains = ['@ubbcluj.ro', '@stud.ubbcluj.ro'];
-    return validDomains.some(domain => email.toLowerCase().endsWith(domain));
+    const validDomains = ["@ubbcluj.ro", "@stud.ubbcluj.ro"];
+    return validDomains.some((domain) => email.toLowerCase().endsWith(domain));
+  }
+
+  function validateTimeInterval(time) {
+    const [hours, minutes] = time.split(":").map(Number);
+    return minutes % 15 === 0; // Ensures the minutes are in multiples of 15
   }
 
   createAccountLink.addEventListener("click", (e) => {
@@ -56,7 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Here you would typically authenticate with a server
     console.log("Login attempted with:", { email, password });
 
     loginContainer.style.display = "none";
@@ -80,7 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Here you would typically create account on server
     console.log("Account creation attempted with:", { email, password });
 
     signupContainer.style.display = "none";
@@ -102,6 +104,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    if (!validateTimeInterval(startTime) || !validateTimeInterval(endTime)) {
+      alert("Start and end times must be in multiples of 15 minutes (e.g., 12:00, 12:15).");
+      return;
+    }
+
     if (new Date(`1970-01-01T${endTime}`) <= new Date(`1970-01-01T${startTime}`)) {
       alert("End time must be after start time.");
       return;
@@ -109,10 +116,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let reservations = JSON.parse(localStorage.getItem(`reservations_${selectedRoom}`)) || [];
 
-    if (reservations.some((reservation) =>
-      !(new Date(`1970-01-01T${endTime}`) <= new Date(`1970-01-01T${reservation.start}`) ||
-        new Date(`1970-01-01T${startTime}`) >= new Date(`1970-01-01T${reservation.end}`))
-    )) {
+    if (
+      reservations.some(
+        (reservation) =>
+          !(
+            new Date(`1970-01-01T${endTime}`) <= new Date(`1970-01-01T${reservation.start}`) ||
+            new Date(`1970-01-01T${startTime}`) >= new Date(`1970-01-01T${reservation.end}`)
+          )
+      )
+    ) {
       alert("This reservation conflicts with an existing reservation.");
       return;
     }

@@ -1,0 +1,129 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f4f4f9;
+  }
+  
+  .container {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 350px;
+  }
+  
+  h1 {
+    color: #003366;
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 24px;
+  }
+  
+  h2 {
+    color: #003366;
+    font-size: 20px;
+    margin-top: 24px;
+  }
+  
+  label {
+    display: block;
+    margin: 12px 0 4px;
+    font-size: 14px;
+    color: #444;
+  }
+  
+  input[type="email"],
+  input[type="password"],
+  input[type="time"],
+  select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+    font-size: 14px;
+  }
+  
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="time"]:focus,
+  select:focus {
+    outline: none;
+    border-color: #003366;
+    box-shadow: 0 0 0 2px rgba(0, 51, 102, 0.1);
+  }
+  
+  button {
+    width: 100%;
+    padding: 12px;
+    background-color: #003366;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s;
+  }
+  
+  button:hover {
+    background-color: #004080;
+  }
+  
+  .signup-link,
+  .login-link {
+    margin-top: 20px;
+    font-size: 14px;
+    text-align: center;
+    color: #666;
+  }
+  
+  .signup-link a,
+  .login-link a {
+    color: #003366;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .signup-link a:hover,
+  .login-link a:hover {
+    text-decoration: underline;
+  }
+  
+  #reservations-list {
+    margin-top: 24px;
+  }
+  
+  #reservation-items {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .reservation-item {
+    background: #f8f9fa;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 4px;
+    border: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+  
+  .delete-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 8px;
+  }
+  
+  .delete-btn:hover {
+    color: #c82333;
+  }
+  
