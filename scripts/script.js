@@ -230,3 +230,4 @@ document.addEventListener("DOMContentLoaded", () => {
   // Display reservations when the page loads
   displayReservations();
 });
+
