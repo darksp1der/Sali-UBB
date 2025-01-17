@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard | UBB Room Reservation</title>
+  <link rel="stylesheet" href="styles/style.css" />
+</head>
+<body>
+  <div class="main-container">
+    <div class="container">
+      <h1>Welcome to UBB Reservation Dashboard</h1>
+      <p>
+        Select a room to view reservations or add new ones. Use the menu to navigate through your options.
+      </p>
+
+      <div class="dashboard-actions">
+        <button id="view-rooms-btn">View Rooms</button>
+        <button id="make-reservation-btn">Make a Reservation</button>
+      </div>
+
+      <p class="logout-link">
+        <a href="index.html" id="logout-link">Logout</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("logout-link").addEventListener("click", (e) => {
+      e.preventDefault();
+      // Add any logout logic if needed
+      window.location.href = "index.html"; // Redirect to the login page
+    });
+
+    document.getElementById("view-rooms-btn").addEventListener("click", () => {
+      alert("Redirecting to the rooms page..."); // Replace with actual navigation logic
+    });
+
+    document.getElementById("make-reservation-btn").addEventListener("click", () => {
+      alert("Redirecting to the reservation page..."); // Replace with actual navigation logic
+    });
+  </script>
+</body>
+</html>
