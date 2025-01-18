@@ -15,7 +15,7 @@
         // For demonstration purposes, we'll just log a message
         alert('Login functionality would be implemented here.');
     
-        // Clear the form
+        // Clear the formz
         emailInput.value = '';
         passwordInput.value = '';
       });

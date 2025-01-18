@@ -20,6 +20,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const startTimeSelect = document.getElementById("start-time");
   const endTimeSelect = document.getElementById("end-time");
   const reservationsList = document.getElementById("reservation-items");
+  const filterDateInput = document.getElementById("filter-date");
+  const filterButton = document.getElementById("filter-button");
 
   // Set minimum date for reservation
   const today = new Date().toISOString().split('T')[0];
@@ -27,10 +29,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Helper: Validate UBB Email
   function validateUBBEmail(email) {
-    const validDomains = ['@ubbcluj.ro', '@stud.ubbcluj.ro'];
+    const validDomains = ['@ubbcluj.ro', '@stud.ubbcluj.ro']; // Added @stud.ubbcluj.ro
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) return false;
     return validDomains.some(domain => email.toLowerCase().endsWith(domain));
+  }
+
+  // Helper: Check if user is superuser
+  function isSuperuser(email) {
+    return email.toLowerCase().endsWith("@ubbcluj.ro");
   }
 
   // Handle Signup
@@ -101,12 +108,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const user = data[0];
       sessionStorage.setItem("user_id", user.id); // Store user ID for reservation management
+      sessionStorage.setItem("user_email", email); // Store user email to check superuser status
 
       alert("Login successful!");
       loginContainer.style.display = "none";
       plannerContainer.style.display = "block";
       logoutButton.style.display = "block"; // Show logout button on login
-      logoutButton.style.position = "absolute"; // Ensure it doesn't move with other elements
 
       await populateRoomDropdown();
     } catch (err) {
@@ -142,16 +149,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function populateRoomDropdown() {
     const rooms = await fetchRooms();
     roomSelect.innerHTML = `<option value="">Choose a Room</option>`;
-    rooms.forEach(room => {
-      const option = document.createElement("option");
-      option.value = room.name;
-      option.textContent = room.name;
-      roomSelect.appendChild(option);
+    rooms.forEach((room) => {
+        const option = document.createElement("option");
+        option.value = room.name;
+        option.textContent = room.name;
+        roomSelect.appendChild(option);
     });
 
-    // Display reservations when a room is selected
-    roomSelect.addEventListener("change", displayReservations);
-  }
+    // Remove previous listeners to avoid duplicates
+    roomSelect.removeEventListener("change", handleRoomChange);
+    roomSelect.addEventListener("change", handleRoomChange);
+}
+
+// Handle room change to display reservations
+function handleRoomChange() {
+    displayReservations();
+}
 
   // Populate Time Dropdowns for 24 Hours
   function populateTimeDropdown(selectElement) {
@@ -166,48 +179,92 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Display All Reservations
-  async function displayReservations() {
-    const selectedRoom = roomSelect.value;
-    reservationsList.innerHTML = "";
+  // Filter Reservations by Date
+  filterButton.addEventListener("click", () => {
+    const selectedDate = filterDateInput.value;
 
-    if (!selectedRoom) {
-      reservationsList.innerHTML = "<p>Please select a room to view reservations.</p>";
+    if (!selectedDate) {
+      alert("Please select a date to filter reservations.");
       return;
     }
 
-    try {
+    displayReservations(selectedDate); // Pass selected date to filter function
+  });
+
+  // Display All Reservations
+ // Display All Reservations
+// Display All Reservations
+// Display All Reservations
+async function displayReservations(filterDate = null) {
+  const selectedRoom = roomSelect.value;
+
+  // Clear the reservation list
+  reservationsList.innerHTML = "";
+
+  if (!selectedRoom) {
+      reservationsList.innerHTML = "<p>Please select a room to view reservations.</p>";
+      return;
+  }
+
+  try {
       const { data, error } = await supabase.from('reservations').select('*').eq('room_name', selectedRoom);
 
       if (error) {
-        console.error('Error fetching reservations:', error.message);
-        reservationsList.innerHTML = "<p>Failed to load reservations.</p>";
-        return;
+          console.error('Error fetching reservations:', error.message);
+          reservationsList.innerHTML = "<p>Failed to load reservations.</p>";
+          return;
       }
 
       if (data.length === 0) {
-        reservationsList.innerHTML = "<p>No reservations for this room.</p>";
-        return;
+          reservationsList.innerHTML = "<p>No reservations for this room.</p>";
+          return;
       }
 
-      data.forEach(reservation => {
+      // Filter reservations by date if needed
+      const filteredReservations = filterDate
+          ? data.filter((reservation) => reservation.reservation_date === filterDate)
+          : data;
+
+      // Sort by date and start time
+      const sortedReservations = filteredReservations.sort((a, b) => {
+          const dateA = new Date(`${a.reservation_date}T${a.start_time}`);
+          const dateB = new Date(`${b.reservation_date}T${b.start_time}`);
+          return dateA - dateB;
+      });
+
+      // Render sorted reservations
+      sortedReservations.forEach((reservation) => {
+        const isSuperUser = isSuperuser(sessionStorage.getItem("user_email"));
         const listItem = document.createElement("li");
+        listItem.className = "reservation-item";
         listItem.innerHTML = `
-          ${reservation.reservation_date} | ${reservation.start_time} - ${reservation.end_time}
-          ${reservation.user_id === sessionStorage.getItem("user_id") ? `<button class="delete-btn" data-id="${reservation.id}">X</button>` : ''}
+            <div>
+              ${reservation.reservation_date} | ${reservation.start_time} - ${reservation.end_time}
+              <p>${reservation.description || "No description provided."}</p> <!-- Show description -->
+            </div>
+            ${
+              isSuperUser || reservation.user_id === sessionStorage.getItem("user_id")
+                ? `<button class="delete-btn" data-id="${reservation.id}">X</button>`
+                : ""
+            }
         `;
         reservationsList.appendChild(listItem);
       });
+      
 
-      // Attach delete event only to buttons for the current user's reservations
+      // Attach delete event handlers
       document.querySelectorAll(".delete-btn").forEach((btn) =>
-        btn.addEventListener("click", deleteReservation)
+          btn.addEventListener("click", deleteReservation)
       );
-    } catch (err) {
+  } catch (err) {
       console.error("Unexpected error displaying reservations:", err.message);
       reservationsList.innerHTML = "<p>An error occurred. Please try again.</p>";
-    }
   }
+}
+
+
+
+
 
   // Handle Reservations
   reservationForm.addEventListener("submit", async (e) => {
@@ -218,6 +275,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const startTime = startTimeSelect.value;
     const endTime = endTimeSelect.value;
     const userId = sessionStorage.getItem("user_id"); // Retrieve user ID
+    const reservationDescription = document.getElementById("reservation-description").value.trim();
+
 
     if (!userId) {
       alert("User not authenticated. Please log in again.");

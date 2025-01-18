@@ -78,18 +78,29 @@
         </select>
 
         <button type="submit">Add Reservation</button>
+        
+        <!-- Reservation Description -->
+  <label for="reservation-description">Reservation Description:</label>
+  <textarea id="reservation-description" rows="3" placeholder="Enter a description for the reservation"></textarea>
 
 
       </form>
 
       <div id="reservations-list">
-        <h2>Your Reservations</h2>
+        <h2>Room Reservations</h2>
         <ul id="reservation-items"></ul>
       </div>
     </div>
   </div>
 
   <script type="module" src="scripts/script.js"></script>
+  <!-- Reservation Filter -->
+<div id="filter-container">
+  <label for="filter-date">Filter by Date:</label>
+  <input type="date" id="filter-date" />
+  <button id="filter-button">Filter</button>
+</div>
+
 </body>
 
 </html>
