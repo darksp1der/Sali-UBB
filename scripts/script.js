@@ -277,89 +277,93 @@ async function displayReservations(filterDate = null) {
     const userId = sessionStorage.getItem("user_id"); // Retrieve user ID
     const reservationDescription = document.getElementById("reservation-description").value.trim();
 
-
     if (!userId) {
-      alert("User not authenticated. Please log in again.");
-      return;
+        alert("User not authenticated. Please log in again.");
+        return;
+    }
+
+    if (!selectedRoom || !reservationDate || !startTime || !endTime) {
+        alert("All fields are required.");
+        return;
     }
 
     const currentDate = new Date();
     const selectedDateTime = new Date(`${reservationDate}T${startTime}`);
 
     if (selectedDateTime < currentDate) {
-      alert("You cannot select a past date or time.");
-      return;
+        alert("You cannot select a past date or time.");
+        return;
     }
 
     if (new Date(`${reservationDate}T${endTime}`) <= selectedDateTime) {
-      alert("End time must be after start time.");
-      return;
+        alert("End time must be after start time.");
+        return;
     }
 
     const durationInHours = (new Date(`${reservationDate}T${endTime}`) - selectedDateTime) / (1000 * 60 * 60);
     if (durationInHours > 4) {
-      alert("Reservations cannot exceed 4 hours.");
-      return;
+        alert("Reservations cannot exceed 4 hours.");
+        return;
     }
 
     // Check for overlapping reservations
     try {
-      const { data: overlappingReservations, error } = await supabase
-        .from('reservations')
-        .select('*')
-        .eq('room_name', selectedRoom)
-        .eq('reservation_date', reservationDate);
+        const { data: overlappingReservations, error } = await supabase
+            .from('reservations')
+            .select('*')
+            .eq('room_name', selectedRoom)
+            .eq('reservation_date', reservationDate);
 
-      if (error) {
-        console.error('Error checking overlapping reservations:', error.message);
-        alert("An error occurred while checking availability. Please try again.");
-        return;
-      }
+        if (error) {
+            console.error('Error checking overlapping reservations:', error.message);
+            alert("An error occurred while checking availability. Please try again.");
+            return;
+        }
 
-      const isOverlapping = overlappingReservations.some(reservation => {
-        const existingStart = new Date(`${reservation.reservation_date}T${reservation.start_time}`);
-        const existingEnd = new Date(`${reservation.reservation_date}T${reservation.end_time}`);
-        const newStart = new Date(`${reservationDate}T${startTime}`);
-        const newEnd = new Date(`${reservationDate}T${endTime}`);
+        const isOverlapping = overlappingReservations.some(reservation => {
+            const existingStart = new Date(`${reservation.reservation_date}T${reservation.start_time}`);
+            const existingEnd = new Date(`${reservation.reservation_date}T${reservation.end_time}`);
+            const newStart = new Date(`${reservationDate}T${startTime}`);
+            const newEnd = new Date(`${reservationDate}T${endTime}`);
 
-        return (
-          (newStart < existingEnd && newEnd > existingStart) || // Overlapping start or end
-          (newStart >= existingStart && newEnd <= existingEnd) // Fully within an existing reservation
-        );
-      });
+            return (
+                (newStart < existingEnd && newEnd > existingStart) || // Overlapping start or end
+                (newStart >= existingStart && newEnd <= existingEnd) // Fully within an existing reservation
+            );
+        });
 
-      if (isOverlapping) {
-        alert("The selected room is already reserved during the specified time. Please choose a different time.");
-        return;
-      }
+        if (isOverlapping) {
+            alert("The selected room is already reserved during the specified time. Please choose a different time.");
+            return;
+        }
 
-      // Insert reservation into Supabase
-      const { data, error: insertError } = await supabase.from('reservations').insert([
-        {
-          room_name: selectedRoom,
-          reservation_date: reservationDate,
-          start_time: startTime,
-          end_time: endTime,
-          user_id: userId,
-        },
-      ]);
+        // Insert reservation into Supabase
+        const { data, error: insertError } = await supabase.from('reservations').insert([
+            {
+                room_name: selectedRoom,
+                reservation_date: reservationDate,
+                start_time: startTime,
+                end_time: endTime,
+                user_id: userId,
+                description: reservationDescription, // Include description
+            },
+        ]);
 
-      if (insertError) {
-        console.error('Error saving reservation:', insertError.message);
-        alert("Failed to save the reservation.");
-        return;
-      }
+        if (insertError) {
+            console.error('Error saving reservation:', insertError.message);
+            alert("Failed to save the reservation.");
+            return;
+        }
 
-      alert("Reservation saved successfully!");
-      dateInput.value = "";
-      startTimeSelect.value = "";
-      endTimeSelect.value = "";
-      displayReservations();
+        alert("Reservation saved successfully!");
+        reservationForm.reset(); // Clear the form
+        displayReservations();
     } catch (err) {
-      console.error("Unexpected error:", err.message);
-      alert("An error occurred. Please try again.");
+        console.error("Unexpected error:", err.message);
+        alert("An error occurred. Please try again.");
     }
-  });
+});
+
 
   // Delete Reservation
   async function deleteReservation(e) {
